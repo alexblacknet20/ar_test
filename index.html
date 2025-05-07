@@ -1,77 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR.js - Видео на изображении</title>
-    
-    <!-- Подключаем A-Frame и AR.js с поддержкой Image Tracking -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.3.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-    
-    <script>
-        // Обработчик событий для изображения
-        AFRAME.registerComponent('video-handler', {
-            init: function() {
-                const el = this.el;
-                const video = document.querySelector('#my-video');
-                
-                // При обнаружении изображения
-                el.addEventListener('markerFound', function() {
-                    console.log('Изображение найдено');
-                    video.play();
-                });
-                
-                // При потере изображения
-                el.addEventListener('markerLost', function() {
-                    console.log('Изображение потеряно');
-                    video.pause();
-                });
-            }
-        });
-    </script>
+  <meta charset="utf-8" />
+  <title>Video-on-Image • AR.js</title>
+
+  <!-- A-Frame + AR.js сборка с Image-tracking -->
+<script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+
+  <style>body{margin:0;overflow:hidden}</style>
 </head>
-<body style="margin: 0; overflow: hidden;">
-    <a-scene
-        vr-mode-ui="enabled: false"
-        renderer="logarithmicDepthBuffer: true;"
-        embedded
-        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best;">
-        
-        <!-- Используем NFT (Natural Feature Tracking) для отслеживания изображения -->
-        <a-nft
-            type="nft"
-            url="placeholder"
-            smooth="true"
-            smoothCount="10"
-            smoothTolerance=".01"
-            smoothThreshold="5"
-            video-handler>
-            
-            <!-- Видео контейнер -->
-            <a-video
-                src="#my-video"
-                position="0 0 0"
-                rotation="-90 0 0"
-                width="1.5"
-                height="1">
-            </a-video>
-        </a-nft>
-        
-        <!-- Камера с ограничениями на дистанцию для лучшей производительности -->
-        <a-entity camera></a-entity>
-        
-        <!-- Предварительная загрузка видео -->
-        <video
-            id="my-video"
-            src="vid.mp4"
-            preload="auto"
-            loop="true"
-            crossorigin="anonymous"
-            muted
-            playsinline
-            style="display: none;">
-        </video>
-    </a-scene>
+<body>
+  <a-scene
+    vr-mode-ui="enabled: false"
+    embedded
+    renderer="logarithmicDepthBuffer: true"
+    arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false"
+  >
+    <!-- Предзагружаем видео -->
+    <a-assets>
+      <video
+        id="promo"
+        src="vid.mp4"
+        preload="auto"
+        loop
+        crossorigin="anonymous"
+        webkit-playsinline
+        playsinline
+      ></video>
+    </a-assets>
+
+    <!-- Привязываемся к NFT-маркеру -->
+    <a-nft
+      type="nft"
+      url="placeholder"
+      smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5"
+      emitevents="true"
+    >
+      <!-- Плоскость, куда мы «натягиваем» видео-текстуру -->
+      <a-video
+        src="#promo"
+        width="1.5"  height="1"        <!-- Подгоните под реальное соотношение кадра -->
+        rotation="-90 0 0"             <!-- Лежит горизонтально на маркере -->
+      ></a-video>
+    </a-nft>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    // Запускаем/останавливаем видео, чтобы обойти блокировку autoplay
+    const video = document.querySelector('#promo');
+    document.querySelector('a-scene').addEventListener('markerFound', () => {
+      if (video.paused) video.play();
+    });
+    document.querySelector('a-scene').addEventListener('markerLost', () => {
+      video.pause();
+    });
+  </script>
 </body>
 </html>
