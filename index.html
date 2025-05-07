@@ -3,24 +3,32 @@
 <head>
   <meta charset="utf-8">
   <title>AR.js Video on Image Marker</title>
-  <!-- A-Frame и AR.js -->
+  <!-- Подключаем A-Frame и AR.js -->
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.3.2/aframe/build/aframe-ar.js"></script>
 </head>
-<body style="margin:0; overflow:hidden;">
-  <!-- Включаем отладочный UI для проверки распознавания -->
-  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: true;">
+<body style="margin: 0; overflow: hidden;">
+  <!-- Включаем отладочный UI и расширенный поиск маркеров по всей области -->
+  <a-scene 
+    embedded
+    vr-mode-ui="enabled: false"
+    arjs="
+      sourceType: webcam;
+      debugUIEnabled: true;
+      markersAreaEnabled: true;
+    "
+  >
     <a-assets>
-      <!-- Убедитесь, что файл называется vid.mp4, как в репозитории -->
+      <!-- Видео должно называться точно vid.mp4 -->
       <video id="video" src="vid.mp4" loop preload="auto" webkit-playsinline playsinline muted crossorigin="anonymous"></video>
     </a-assets>
 
-    <!-- 1) Для начала проверка стандартного Hiro-маркера -->
+    <!-- Сначала проверяем с Hiro-маркером -->
     <a-marker preset="hiro">
       <a-box position="0 0.5 0" material="color: yellow;"></a-box>
     </a-marker>
 
-    <!-- 2) Ваш маркер с видео (раскомментируйте после проверки Hiro) -->
+    <!-- После успешной проверки раскомментируйте и используйте блок ниже -->
     <!--
     <a-marker type="pattern" url="marker.patt">
       <a-video 
@@ -37,10 +45,8 @@
   </a-scene>
 
   <script>
-    // Берём первый обнаруженный маркер (для нескольких можете разделить селекторы)
     const marker = document.querySelector('a-marker');
     const video = document.querySelector('#video');
-
     marker.addEventListener('markerFound', () => {
       console.log('marker found, play video');
       video.play().catch(e => console.warn('Не удалось запустить видео:', e));
